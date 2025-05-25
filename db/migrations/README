@@ -1,1 +1,16 @@
-Run DB auto-update – `alembic revision --autogenerate -m "Comment"`
+# Database Migration Commands
+
+## Creating migrations
+- Generate a migration: `alembic revision --autogenerate -m "Comment"`
+- Create a migration manually: Create a file in versions/ with appropriate revision ID
+
+## Applying migrations
+- Apply all pending migrations: `alembic upgrade head`
+- Apply a specific migration: `alembic upgrade <revision_id>`
+- Downgrade to a previous migration: `alembic downgrade <revision_id>`
+
+## Special migrations
+For the "Remove chief_editor_id and add slug" migration:
+1. Apply the migration: `alembic upgrade 202503231`
+2. Populate slug values for existing records: `python3 db/migrations/versions/populate_media_slugs.py`
+3. Verify the migration was successful

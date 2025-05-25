@@ -1,5 +1,3 @@
-from typing import List
-
 from sqlalchemy import create_engine, or_, desc
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
@@ -14,11 +12,8 @@ load_dotenv()
 class DBConnector:
     """Class for managing database connections and operations."""
 
-    def __init__(self, media_id: int, model_name: str = None):
+    def __init__(self):
         """Initialize the database connection using environment variables."""
-        self.media_id = media_id
-        self.model_name = model_name
-
         self.db_url = get_db_address()
         self.engine = create_engine(self.db_url)
         self.Session = sessionmaker(bind=self.engine)
@@ -26,73 +21,6 @@ class DBConnector:
 
         # Initialize tables
         Base.metadata.create_all(self.engine)
-
-    def get_article(self, article_id):
-        return (self
-                .session
-                .query(Article)
-                .filter_by(article_id=article_id, media_id=self.media_id)
-                .first()
-                )
-
-    def get_articles_latest_articles(self):
-        return (self
-                .session
-                .query(Article)
-                .all()
-                )
-
-    def get_articles_by_category(self, category):
-        return (self
-                .session
-                .query(Article)
-                .filter_by(category=category, media_id=self.media_id, paywall=False)
-                .filter(Article.date_time.isnot(None))
-                .filter(Article.date_time >= '2021-01-01')
-                .order_by(desc(Article.date_time))
-                .all()
-                )
-
-    def get_articles_with_parties(self):
-
-        if self.media_id == 1:
-            political_parties = [
-                'keskerakond', 'центристы',
-                'консерваторы', 'экре', 'ekre',
-                'reformierakond', 'реформисты',
-                'eesti 200', "ээсти 200",
-                'rohelised', 'зеленые',
-                'parempoolsed',
-                'isamaa', "отечество", "отечества",
-                'koos', "коос",
-                'sotsiaaldemokraatlik', 'социал-демократы', 'соцдемы', 'sde',
-            ]
-        elif self.media_id == 2:
-            political_parties = [
-                'erakond'
-                'keskerakond', 'tsentristid', 'keskerakonna',
-                "konservatiivid", "ekre",
-                "reformierakond", "reformikad",
-                'eesti 200',
-                "rohelised",
-                'parempoolsed',
-                'isamaa',
-                'sotsiaaldemokraatlik', 'sotsiaaldemokraadid', 'sotsid', 'sde',
-            ]
-
-        if not political_parties: raise Exception("Key words in get_articles_with_parties were not defined. Aborting analysis.")
-
-        conditions = [Article.body.like(f'%{party}%') for party in political_parties]
-
-        # Query for articles where any political party is mentioned
-        return (self
-                .session
-                .query(Article)
-                .filter_by(media_id=self.media_id, paywall=False)
-                .filter(or_(*conditions))
-                .order_by(desc(Article.date_time))
-                .all()
-                )
 
     def article_exists(self, article_url):
         return (self
@@ -106,23 +34,14 @@ class DBConnector:
                 .scalar()
                 )
 
-    def get_oldest_article(self):
-        return (self
-                .session
-                .query(Article)
-                .filter(Article.date_time.isnot(None))
-                .order_by(Article.date_time.asc())
-                .first()
-                )
 
-    def analysis_exists(self, article_id):
+    def analysis_exists(self, article_id, model_name):
         return (
             self
             .session
             .query(SentimentAnalysis)
             .filter(
-                SentimentAnalysis.model == self.model_name,
-                SentimentAnalysis.media_id == self.media_id,
+                SentimentAnalysis.model == model_name,
                 SentimentAnalysis.article_id == article_id
             )
             .first()

@@ -1,13 +1,10 @@
-from typing import List
-
 from db.db_connector import DBConnector
 from db.models.models import *
 
 
 class SentimentParser:
-    def __init__(self, media_id):
-        self.media_id = media_id
-        self.db = DBConnector(self.media_id)
+    def __init__(self):
+        self.db = DBConnector()
 
     def sync_analysis(self, analysis: SentimentAnalysis):
         print("Syncing analysis...")

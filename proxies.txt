@@ -1,0 +1,9 @@
+# List of proxies to use with scrapy-rotating-proxies
+# One proxy per line
+
+# Example formats:
+# http://username:password@ip:port
+# http://ip:port
+
+# Add your proxies below:
+https://scraperapi:e1327d3fad83384ddafb5d19aacc899b@proxy-server.scraperapi.com:8001
